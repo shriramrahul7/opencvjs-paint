@@ -16,6 +16,20 @@ let isDrawing = false;
 
 const FPS = 30;
 
+document.getElementById("clearBtn").onclick = (e) => {
+  e.preventDefault();
+  if (!isDrawing) List = [[]];
+};
+
+document.getElementById("undoBtn").onclick = (e) => {
+  e.preventDefault();
+  if (!isDrawing) {
+    List.pop();
+    List.pop();
+    List.push([]);
+  }
+};
+
 const setSize = () => {
   frame = new cv.Mat(height, width, cv.CV_8UC4);
   dst = new cv.Mat(height, width, cv.CV_8UC1);
@@ -45,8 +59,8 @@ const draw = () => {
   let hsv = new cv.Mat();
   cv.cvtColor(frame, hsv, cv.COLOR_RGB2HSV);
   // console.log(hsv.type());
-  lower = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [44, 78, 74, 0]);
-  upper = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [84, 255, 183, 1]);
+  let lower = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [44, 78, 74, 0]);
+  let upper = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [84, 255, 183, 1]);
   // console.log("BEFORE::::::::::", hsv);
   cv.inRange(hsv, lower, upper, hsv);
   lower.delete();
@@ -108,6 +122,7 @@ const draw = () => {
 };
 
 const processVideo = () => {
+  let begin = Date.now();
   context.drawImage(video, 0, 0, width, height);
   if (frame) {
     frame.data.set(context.getImageData(0, 0, width, height).data);
@@ -118,7 +133,8 @@ const processVideo = () => {
     // frame.delete();
   }
 
-  video.requestVideoFrameCallback(processVideo);
+  let delay = 1000 / FPS - (Date.now() - begin);
+  setTimeout(video.requestVideoFrameCallback(processVideo), delay);
 };
 
 document.getElementById("circlesButton").onclick = () => {
