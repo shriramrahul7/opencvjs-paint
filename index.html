@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>OpenCV.js</title>
+	<style>
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			top: 0;
+			left: 0;
+			height: 100%;
+			width: 100%;
+			background: rgba(255, 255, 255, .8) url('http://i.stack.imgur.com/FhHRx.gif') 50% 50% no-repeat;
+		}
+
+		/* prevent scrollbar from display during load */
+		body.loading {
+			overflow: hidden;
+		}
+
+		/* display the modal when loading class is added to body */
+		body.loading .modal {
+			display: block;
+		}
+
+		.btn {
+			display: block;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- Our HTML will go here-->
+	<div class="modal"></div>
+
+	<button type="button" id="circlesButton" class="btn btn-primary">Toggle Video</button>
+	<video id="videoCapture" style="display: none;"></video>
+	<canvas id="canvasFrame"></canvas>
+
+	<script src="script.js"></script>
+	<script async src="./js/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+
+</body>
+
+</html>
