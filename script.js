@@ -1,3 +1,5 @@
+// 105 122 86 196 58 185
+// 103 141 80 165 41 255
 document.body.classList.add("loading");
 const video = document.getElementById("videoCapture"); // video is the id of video tag
 const canvas = document.getElementById("canvasFrame");
@@ -14,11 +16,24 @@ let cList = [[]];
 let lineColor = [0, 0, 0, 255];
 let isDrawing = false;
 
+let hueLower = 103,
+  hueHigher = 141,
+  satLower = 80,
+  satHigher = 165,
+  vibLower = 41,
+  vibHigher = 255;
+
 const FPS = 30;
+
+let display = frame;
+radioCall = (id) => {
+  return eval(`${id}`);
+};
 
 document.getElementById("clearBtn").onclick = (e) => {
   e.preventDefault();
-  if (!isDrawing) List = [[]];
+  // if (!isDrawing)
+  List = [[]];
 };
 
 document.getElementById("undoBtn").onclick = (e) => {
@@ -59,18 +74,30 @@ const draw = () => {
   let hsv = new cv.Mat();
   cv.cvtColor(frame, hsv, cv.COLOR_RGB2HSV);
   // console.log(hsv.type());
-  let lower = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [44, 78, 74, 0]);
-  let upper = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [84, 255, 183, 1]);
+  let lower = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [
+    hueLower,
+    satLower,
+    vibLower,
+    0,
+  ]);
+  let upper = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [
+    hueHigher,
+    satHigher,
+    vibHigher,
+    255,
+  ]);
   // console.log("BEFORE::::::::::", hsv);
   cv.inRange(hsv, lower, upper, hsv);
   lower.delete();
   upper.delete();
 
   let temp = new cv.Mat();
+  let tempdisp = new cv.Mat();
   cv.bitwise_and(frame, frame, temp, (mask = hsv));
+  tempdisp = temp.clone();
   cv.cvtColor(temp, temp, cv.COLOR_RGBA2GRAY);
   let blur = new cv.Mat();
-  cv.medianBlur(temp, blur, 7);
+  cv.medianBlur(temp, blur, 9);
   temp.delete();
 
   let contours = new cv.MatVector();
@@ -100,8 +127,11 @@ const draw = () => {
     isDrawing = false;
   }
 
-  cv.imshow("canvasFrame", frame);
-
+  // if (tempdisp.checked) cv.imshow("canvasFrame", tempdisp);
+  // else if (blur.checked) cv.imshow("canvasFrame", blur);
+  // else cv.imshow("canvasFrame", frame);
+  cv.imshow("canvasFrame", display);
+  tempdisp.delete();
   for (let i of List) {
     if (i.length !== 0) {
       // console.log(i);
@@ -111,8 +141,8 @@ const draw = () => {
         context.lineTo(j[0], j[1]);
       }
       context.lineWidth = 4;
-
-      context.stroke();
+      context.strokeStyle = "pink";
+      if (strokeCheck.checked) context.stroke();
     }
   }
 
@@ -161,3 +191,13 @@ document.getElementById("circlesButton").onclick = () => {
 function onOpenCvReady() {
   document.body.classList.remove("loading");
 }
+
+const sliderCallback = (id, value) => {
+  eval(`${id} = ${value}`);
+  colorValues.textContent = JSON.stringify({
+    lower: [hueLower, satLower, vibLower],
+    upper: [hueHigher, satHigher, vibHigher],
+  });
+  // console.log(vibHigher);
+};
+// [0,194,66],"upper":[179,255,255]
